@@ -78,10 +78,56 @@ Make sure you have the following installed:
    npm run tauri build
    ```
 
+## 🏢 Companies Feature
+
+The Sales Report application includes a comprehensive Companies management system with the following features:
+
+### Features
+- **CRUD Operations**: Create, Read, Update, Delete companies
+- **GST Validation**: Validates GST number format (15 characters, proper structure)
+- **State Code Dropdown**: Pre-populated with Indian state codes
+- **Search & Filter**: Search companies by name, GST number, or state code
+- **Data Persistence**: SQLite database with automatic migrations
+- **Form Validation**: Client-side and server-side validation
+- **Responsive UI**: Mobile-friendly interface with modern design
+
+### Database Schema
+The companies table includes:
+- `id` (Primary Key, Auto-increment)
+- `company_name` (Required, Max 255 characters)
+- `gst_no` (Required, Unique, 15 characters)
+- `state_code` (Required, 2-digit state code)
+- `created_at` (Auto-generated timestamp)
+- `updated_at` (Auto-updated timestamp)
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:ui
+
+# Run tests once
+npm run test:run
+```
+
+### Database Migrations
+The SQLite database is automatically created and migrated when you first run the application. The migration creates the `companies` table with all required fields and constraints.
+
+### Sample Data
+To add sample companies for testing:
+1. Navigate to the Companies page (`/companies`)
+2. Click "Add Company"
+3. Fill in the form with valid data:
+   - Company Name: "Test Company Pvt Ltd"
+   - GST Number: "07AABCU9603R1ZX"
+   - State Code: "07" (Delhi)
+
 ## 📁 Project Structure
 
 ```
-tauri-react-template/
+sales-report/
 ├── public/                     # Static assets
 │   ├── tauri.svg              # App icons
 │   └── vite.svg
@@ -90,10 +136,19 @@ tauri-react-template/
 │   │   ├── ui/               # shadcn/ui components
 │   │   ├── Layout/           # Layout components
 │   │   ├── Pages/            # Page components
+│   │   │   ├── Companies.tsx # Companies management page
+│   │   │   ├── CompanyForm.tsx # Company form component
+│   │   │   ├── DeleteConfirmDialog.tsx # Delete confirmation
+│   │   │   └── __tests__/    # Component tests
 │   │   ├── NavBar.tsx        # Navigation component
 │   │   ├── Footer.tsx        # Footer component
 │   │   ├── ModeToggle.tsx    # Theme toggle
 │   │   └── theme-provider.tsx # Theme context
+│   ├── types/                # TypeScript type definitions
+│   │   ├── company.ts        # Company data types
+│   │   └── __tests__/        # Type tests
+│   ├── test/                 # Test setup and utilities
+│   │   └── setup.ts          # Test configuration
 │   ├── lib/                  # Utility functions
 │   │   └── utils.ts          # Common utilities
 │   ├── App.tsx               # Router setup
@@ -102,7 +157,7 @@ tauri-react-template/
 ├── src-tauri/                 # Tauri backend
 │   ├── src/                  # Rust source
 │   │   ├── main.rs           # Main entry point
-│   │   └── lib.rs            # Library functions
+│   │   └── lib.rs            # Library functions & API
 │   ├── Cargo.toml            # Rust dependencies
 │   ├── tauri.conf.json       # Tauri configuration
 │   └── build.rs              # Build script
@@ -110,6 +165,7 @@ tauri-react-template/
 ├── tailwind.config.js         # Tailwind configuration
 ├── tsconfig.json             # TypeScript config
 ├── vite.config.ts            # Vite configuration
+├── vitest.config.ts          # Vitest test configuration
 └── package.json              # Node.js dependencies
 ```
 
@@ -162,6 +218,9 @@ Available components: button, card, input, dropdown-menu, dialog, and [many more
 | `npm run dev` | Start frontend dev server only |
 | `npm run build` | Build frontend only |
 | `npm run preview` | Preview production build |
+| `npm test` | Run tests in watch mode |
+| `npm run test:ui` | Run tests with UI |
+| `npm run test:run` | Run tests once |
 
 ### Adding Tauri Commands
 
