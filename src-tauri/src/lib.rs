@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
-use tauri_plugin_sql::{Migration, MigrationKind};
+use std::collections::HashMap;
+use std::sync::Mutex;
+use tauri::State;
 
 // Company data model
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Company {
     pub id: Option<i64>,
     pub company_name: String,
@@ -26,23 +28,19 @@ pub struct UpdateCompany {
     pub state_code: Option<String>,
 }
 
-// Database migrations
-pub fn get_migrations() -> Vec<Migration> {
-    vec![
-        Migration {
-            version: 1,
-            description: "create_companies_table",
-            sql: "CREATE TABLE companies (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                company_name TEXT NOT NULL,
-                gst_no TEXT NOT NULL UNIQUE,
-                state_code TEXT NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );",
-            kind: MigrationKind::Up,
-        },
-    ]
+// In-memory storage for companies
+pub struct CompanyStorage {
+    companies: Mutex<HashMap<i64, Company>>,
+    next_id: Mutex<i64>,
+}
+
+impl CompanyStorage {
+    pub fn new() -> Self {
+        Self {
+            companies: Mutex::new(HashMap::new()),
+            next_id: Mutex::new(1),
+        }
+    }
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -52,8 +50,8 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn create_company(
-    app_handle: tauri::AppHandle,
+fn create_company(
+    storage: State<CompanyStorage>,
     company: CreateCompany,
 ) -> Result<Company, String> {
     // Validate input
@@ -73,95 +71,64 @@ async fn create_company(
         return Err("State code is required".to_string());
     }
 
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
+    let mut companies = storage.companies.lock().unwrap();
+    let mut next_id = storage.next_id.lock().unwrap();
 
-    let result = db
-        .execute(
-            "sqlite:sales_report.db",
-            "INSERT INTO companies (company_name, gst_no, state_code) VALUES (?1, ?2, ?3)",
-            &[
-                company.company_name.trim(),
-                company.gst_no.trim(),
-                company.state_code.trim(),
-            ],
-        )
-        .await
-        .map_err(|e| format!("Failed to create company: {}", e))?;
+    // Check for duplicate GST
+    for existing_company in companies.values() {
+        if existing_company.gst_no == company.gst_no.trim() {
+            return Err("GST number already in use".to_string());
+        }
+    }
 
-    let company_id = result.last_insert_rowid;
-    
-    // Fetch the created company
-    let companies: Vec<Company> = db
-        .select(
-            "sqlite:sales_report.db",
-            "SELECT id, company_name, gst_no, state_code, created_at, updated_at FROM companies WHERE id = ?1",
-            &[company_id.to_string()],
-        )
-        .await
-        .map_err(|e| format!("Failed to fetch created company: {}", e))?;
+    let id = *next_id;
+    *next_id += 1;
 
-    companies.into_iter().next().ok_or_else(|| "Company not found after creation".to_string())
+    let new_company = Company {
+        id: Some(id),
+        company_name: company.company_name.trim().to_string(),
+        gst_no: company.gst_no.trim().to_string(),
+        state_code: company.state_code.trim().to_string(),
+        created_at: Some(chrono::Utc::now().to_rfc3339()),
+        updated_at: Some(chrono::Utc::now().to_rfc3339()),
+    };
+
+    companies.insert(id, new_company.clone());
+    Ok(new_company)
 }
 
 #[tauri::command]
-async fn get_companies(app_handle: tauri::AppHandle) -> Result<Vec<Company>, String> {
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
-
-    let companies: Vec<Company> = db
-        .select(
-            "sqlite:sales_report.db",
-            "SELECT id, company_name, gst_no, state_code, created_at, updated_at FROM companies ORDER BY created_at DESC",
-            &[],
-        )
-        .await
-        .map_err(|e| format!("Failed to fetch companies: {}", e))?;
-
-    Ok(companies)
+fn get_companies(storage: State<CompanyStorage>) -> Result<Vec<Company>, String> {
+    let companies = storage.companies.lock().unwrap();
+    let mut company_list: Vec<Company> = companies.values().cloned().collect();
+    company_list.sort_by(|a, b| {
+        b.created_at.as_ref().unwrap_or(&String::new())
+            .cmp(a.created_at.as_ref().unwrap_or(&String::new()))
+    });
+    Ok(company_list)
 }
 
 #[tauri::command]
-async fn get_company_by_id(
-    app_handle: tauri::AppHandle,
+fn get_company_by_id(
+    storage: State<CompanyStorage>,
     id: i64,
 ) -> Result<Company, String> {
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
-
-    let companies: Vec<Company> = db
-        .select(
-            "sqlite:sales_report.db",
-            "SELECT id, company_name, gst_no, state_code, created_at, updated_at FROM companies WHERE id = ?1",
-            &[id.to_string()],
-        )
-        .await
-        .map_err(|e| format!("Failed to fetch company: {}", e))?;
-
-    companies.into_iter().next().ok_or_else(|| "Company not found".to_string())
+    let companies = storage.companies.lock().unwrap();
+    companies.get(&id).cloned().ok_or_else(|| "Company not found".to_string())
 }
 
 #[tauri::command]
-async fn update_company(
-    app_handle: tauri::AppHandle,
+fn update_company(
+    storage: State<CompanyStorage>,
     id: i64,
     company: UpdateCompany,
 ) -> Result<Company, String> {
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
+    let mut companies = storage.companies.lock().unwrap();
+    
+    let mut existing_company = companies.get(&id).cloned()
+        .ok_or_else(|| "Company not found".to_string())?;
 
-    // Build dynamic update query
-    let mut update_fields = Vec::new();
-    let mut params: Vec<String> = Vec::new();
-
+    // Validate and update fields
     if let Some(name) = &company.company_name {
         if name.trim().is_empty() {
             return Err("Company name cannot be empty".to_string());
@@ -169,8 +136,7 @@ async fn update_company(
         if name.len() > 255 {
             return Err("Company name must be 255 characters or less".to_string());
         }
-        update_fields.push("company_name = ?");
-        params.push(name.trim().to_string());
+        existing_company.company_name = name.trim().to_string();
     }
 
     if let Some(gst_no) = &company.gst_no {
@@ -180,77 +146,55 @@ async fn update_company(
         if !is_valid_gst_format(gst_no) {
             return Err("GST number must be 15 characters and follow GST format".to_string());
         }
-        update_fields.push("gst_no = ?");
-        params.push(gst_no.trim().to_string());
+        
+        // Check for duplicate GST (excluding current company)
+        for (existing_id, existing) in companies.iter() {
+            if *existing_id != id && existing.gst_no == gst_no.trim() {
+                return Err("GST number already in use".to_string());
+            }
+        }
+        
+        existing_company.gst_no = gst_no.trim().to_string();
     }
 
     if let Some(state_code) = &company.state_code {
         if state_code.trim().is_empty() {
             return Err("State code cannot be empty".to_string());
         }
-        update_fields.push("state_code = ?");
-        params.push(state_code.trim().to_string());
+        existing_company.state_code = state_code.trim().to_string();
     }
 
-    if update_fields.is_empty() {
-        return Err("No fields to update".to_string());
-    }
-
-    update_fields.push("updated_at = CURRENT_TIMESTAMP");
-    params.push(id.to_string());
-
-    let query = format!(
-        "UPDATE companies SET {} WHERE id = ?",
-        update_fields.join(", ")
-    );
-
-    db.execute("sqlite:sales_report.db", &query, &params)
-        .await
-        .map_err(|e| format!("Failed to update company: {}", e))?;
-
-    // Fetch the updated company
-    get_company_by_id(app_handle, id).await
+    existing_company.updated_at = Some(chrono::Utc::now().to_rfc3339());
+    companies.insert(id, existing_company.clone());
+    Ok(existing_company)
 }
 
 #[tauri::command]
-async fn delete_company(app_handle: tauri::AppHandle, id: i64) -> Result<(), String> {
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
-
-    db.execute(
-        "sqlite:sales_report.db",
-        "DELETE FROM companies WHERE id = ?1",
-        &[id.to_string()],
-    )
-    .await
-    .map_err(|e| format!("Failed to delete company: {}", e))?;
-
+fn delete_company(storage: State<CompanyStorage>, id: i64) -> Result<(), String> {
+    let mut companies = storage.companies.lock().unwrap();
+    companies.remove(&id).ok_or_else(|| "Company not found".to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-async fn search_companies(
-    app_handle: tauri::AppHandle,
+fn search_companies(
+    storage: State<CompanyStorage>,
     query: String,
 ) -> Result<Vec<Company>, String> {
-    let db = tauri_plugin_sql::Builder::default()
-        .add_migrations("sqlite:sales_report.db", get_migrations())
-        .build(app_handle)
-        .map_err(|e| format!("Database error: {}", e))?;
-
-    let search_term = format!("%{}%", query.trim());
-    let companies: Vec<Company> = db
-        .select(
-            "sqlite:sales_report.db",
-            "SELECT id, company_name, gst_no, state_code, created_at, updated_at FROM companies WHERE company_name LIKE ?1 OR gst_no LIKE ?1 ORDER BY created_at DESC",
-            &[search_term],
-        )
-        .await
-        .map_err(|e| format!("Failed to search companies: {}", e))?;
-
-    Ok(companies)
+    let companies = storage.companies.lock().unwrap();
+    let search_term = query.trim().to_lowercase();
+    
+    let filtered: Vec<Company> = companies
+        .values()
+        .filter(|company| {
+            company.company_name.to_lowercase().contains(&search_term) ||
+            company.gst_no.to_lowercase().contains(&search_term) ||
+            company.state_code.to_lowercase().contains(&search_term)
+        })
+        .cloned()
+        .collect();
+    
+    Ok(filtered)
 }
 
 // Helper function to validate GST format
@@ -264,11 +208,7 @@ fn is_valid_gst_format(gst_no: &str) -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(
-            tauri_plugin_sql::Builder::default()
-                .add_migrations("sqlite:sales_report.db", get_migrations())
-                .build(),
-        )
+        .manage(CompanyStorage::new())
         .invoke_handler(tauri::generate_handler![
             greet,
             create_company,

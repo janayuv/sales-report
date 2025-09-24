@@ -29,11 +29,6 @@
       "csp": null
     }
   },
-  "plugins": {
-    "sql": {
-      "preload": ["sqlite:sales_report.db"]
-    }
-  },
   "bundle": {
     "active": true,
     "targets": "all",
