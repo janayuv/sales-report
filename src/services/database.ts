@@ -1,15 +1,12 @@
-import { open } from '@tauri-apps/plugin-sql';
+import { invoke } from '@tauri-apps/api/core';
 import { Company, CreateCompany, UpdateCompany } from '@/types/company';
 
 class DatabaseService {
-  private db: any = null;
+  private dbPath = 'sqlite:sales_report.db';
 
   async initialize() {
-    if (!this.db) {
-      this.db = await open('sqlite:sales_report.db');
-      await this.createTables();
-    }
-    return this.db;
+    // Initialize database and create tables
+    await this.createTables();
   }
 
   private async createTables() {
@@ -24,7 +21,11 @@ class DatabaseService {
       )
     `;
     
-    await this.db.execute(createTableSQL);
+    await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: createTableSQL,
+      values: []
+    });
   }
 
   async createCompany(companyData: CreateCompany): Promise<Company> {
@@ -35,11 +36,15 @@ class DatabaseService {
       VALUES ($1, $2, $3)
     `;
     
-    const result = await this.db.execute(insertSQL, [
-      companyData.company_name.trim(),
-      companyData.gst_no.trim(),
-      companyData.state_code.trim()
-    ]);
+    const result = await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: insertSQL,
+      values: [
+        companyData.company_name.trim(),
+        companyData.gst_no.trim(),
+        companyData.state_code.trim()
+      ]
+    });
     
     const companyId = result.lastInsertId;
     
@@ -50,7 +55,12 @@ class DatabaseService {
       WHERE id = $1
     `;
     
-    const companies = await this.db.select(selectSQL, [companyId]);
+    const companies = await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: [companyId]
+    });
+    
     return companies[0];
   }
 
@@ -63,7 +73,11 @@ class DatabaseService {
       ORDER BY created_at DESC
     `;
     
-    return await this.db.select(selectSQL);
+    return await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: []
+    });
   }
 
   async getCompanyById(id: number): Promise<Company | null> {
@@ -75,7 +89,12 @@ class DatabaseService {
       WHERE id = $1
     `;
     
-    const companies = await this.db.select(selectSQL, [id]);
+    const companies = await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: [id]
+    });
+    
     return companies[0] || null;
   }
 
@@ -118,7 +137,11 @@ class DatabaseService {
       WHERE id = $${paramIndex}
     `;
     
-    await this.db.execute(updateSQL, params);
+    await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: updateSQL,
+      values: params
+    });
     
     // Fetch the updated company
     const updatedCompany = await this.getCompanyById(id);
@@ -133,7 +156,11 @@ class DatabaseService {
     await this.initialize();
     
     const deleteSQL = 'DELETE FROM companies WHERE id = $1';
-    await this.db.execute(deleteSQL, [id]);
+    await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: deleteSQL,
+      values: [id]
+    });
   }
 
   async searchCompanies(query: string): Promise<Company[]> {
@@ -147,7 +174,11 @@ class DatabaseService {
       ORDER BY created_at DESC
     `;
     
-    return await this.db.select(selectSQL, [searchTerm]);
+    return await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: [searchTerm]
+    });
   }
 
   async checkGstExists(gstNo: string, excludeId?: number): Promise<boolean> {
@@ -161,7 +192,12 @@ class DatabaseService {
       params.push(excludeId);
     }
     
-    const result = await this.db.select(selectSQL, params);
+    const result = await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: params
+    });
+    
     return result[0].count > 0;
   }
 }
