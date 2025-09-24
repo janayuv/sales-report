@@ -80,16 +80,25 @@ Make sure you have the following installed:
 
 ## 🏢 Companies Feature
 
-The Sales Report application includes a comprehensive Companies management system with the following features:
+The Sales Report application includes a comprehensive Companies management system with **Selected Company** context for streamlined operations.
 
 ### Features
-- **CRUD Operations**: Create, Read, Update, Delete companies
+- **CRUD Operations**: Create, Read, Update companies (Delete intentionally omitted)
+- **Selected Company Context**: Global company selection with persistence
 - **GST Validation**: Validates GST number format (15 characters, proper structure)
 - **State Code Dropdown**: Pre-populated with Indian state codes
 - **Search & Filter**: Search companies by name, GST number, or state code
 - **Data Persistence**: SQLite database with automatic migrations
 - **Form Validation**: Client-side and server-side validation
 - **Responsive UI**: Mobile-friendly interface with modern design
+- **Import/Report Integration**: Uses selected company for data operations
+
+### Selected Company Behavior
+- **Global Selection**: Company selector in the header/top bar
+- **Persistent Storage**: Selection survives app restarts
+- **Visual Feedback**: Shows selected company name and state badge
+- **Import/Report Integration**: All data operations use the selected company
+- **Validation**: Prevents operations without a selected company
 
 ### Database Schema
 The companies table includes:
@@ -98,6 +107,11 @@ The companies table includes:
 - `gst_no` (Required, Unique, 15 characters)
 - `state_code` (Required, 2-digit state code)
 - `created_at` (Auto-generated timestamp)
+- `updated_at` (Auto-updated timestamp)
+
+The app_settings table stores:
+- `key` (Primary Key, TEXT)
+- `value` (TEXT)
 - `updated_at` (Auto-updated timestamp)
 
 ### Running Tests
@@ -113,7 +127,9 @@ npm run test:run
 ```
 
 ### Database Migrations
-The SQLite database is automatically created and migrated when you first run the application. The migration creates the `companies` table with all required fields and constraints.
+The SQLite database is automatically created and migrated when you first run the application. The migration creates:
+- `companies` table with all required fields and constraints
+- `app_settings` table for storing application preferences (selected company)
 
 ### Sample Data
 To add sample companies for testing:
@@ -123,6 +139,13 @@ To add sample companies for testing:
    - Company Name: "Test Company Pvt Ltd"
    - GST Number: "07AABCU9603R1ZX"
    - State Code: "07" (Delhi)
+
+### Using Selected Company
+1. **Select a Company**: Use the dropdown in the header to select a company
+2. **Import Data**: Navigate to Import & Reports page - operations will use the selected company
+3. **Generate Reports**: Reports will be generated for the selected company
+4. **Validation**: If no company is selected, you'll be prompted to select one
+5. **Persistence**: Your selection is saved and restored when you restart the app
 
 ## 📁 Project Structure
 
@@ -138,17 +161,23 @@ sales-report/
 │   │   ├── Pages/            # Page components
 │   │   │   ├── Companies.tsx # Companies management page
 │   │   │   ├── CompanyForm.tsx # Company form component
-│   │   │   ├── DeleteConfirmDialog.tsx # Delete confirmation
+│   │   │   ├── ImportReport.tsx # Import & Reports page
 │   │   │   └── __tests__/    # Component tests
+│   │   ├── CompanySelector.tsx # Company selection dropdown
 │   │   ├── NavBar.tsx        # Navigation component
 │   │   ├── Footer.tsx        # Footer component
 │   │   ├── ModeToggle.tsx    # Theme toggle
 │   │   └── theme-provider.tsx # Theme context
+│   ├── contexts/             # React contexts
+│   │   └── SelectedCompanyContext.tsx # Selected company state
+│   ├── services/             # API services
+│   │   └── database.ts       # Database operations
 │   ├── types/                # TypeScript type definitions
 │   │   ├── company.ts        # Company data types
 │   │   └── __tests__/        # Type tests
 │   ├── test/                 # Test setup and utilities
-│   │   └── setup.ts          # Test configuration
+│   │   ├── setup.ts          # Test configuration
+│   │   └── selectedCompany.test.tsx # Selected company tests
 │   ├── lib/                  # Utility functions
 │   │   └── utils.ts          # Common utilities
 │   ├── App.tsx               # Router setup
@@ -158,6 +187,8 @@ sales-report/
 │   ├── src/                  # Rust source
 │   │   ├── main.rs           # Main entry point
 │   │   └── lib.rs            # Library functions & API
+│   ├── capabilities/         # Tauri permissions
+│   │   └── default.json      # Default capabilities
 │   ├── Cargo.toml            # Rust dependencies
 │   ├── tauri.conf.json       # Tauri configuration
 │   └── build.rs              # Build script

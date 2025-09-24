@@ -215,8 +215,8 @@ export default function Companies() {
         <CompanyForm
           company={editingCompany}
           onSubmit={editingCompany 
-            ? (data) => handleUpdateCompany(editingCompany.id!, data)
-            : handleCreateCompany
+            ? (data) => handleUpdateCompany(editingCompany.id!, data as UpdateCompany)
+            : (data) => handleCreateCompany(data as CreateCompany)
           }
           onClose={handleCloseForm}
         />

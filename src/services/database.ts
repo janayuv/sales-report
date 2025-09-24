@@ -46,7 +46,7 @@ class DatabaseService {
       ]
     });
     
-    const companyId = result.lastInsertId;
+    const companyId = (result as any).lastInsertId;
     
     // Fetch the created company
     const selectSQL = `
@@ -61,7 +61,7 @@ class DatabaseService {
       values: [companyId]
     });
     
-    return companies[0];
+    return (companies as Company[])[0];
   }
 
   async getCompanies(): Promise<Company[]> {
@@ -95,7 +95,7 @@ class DatabaseService {
       values: [id]
     });
     
-    return companies[0] || null;
+    return (companies as Company[])[0] || null;
   }
 
   async updateCompany(id: number, companyData: UpdateCompany): Promise<Company> {
@@ -200,11 +200,11 @@ class DatabaseService {
       values: []
     });
     
-    if (result.length === 0) {
+    if ((result as any[]).length === 0) {
       return null;
     }
     
-    const companyId = parseInt(result[0].value);
+    const companyId = parseInt((result as any[])[0].value);
     return await this.getCompanyById(companyId);
   }
 
@@ -254,7 +254,7 @@ class DatabaseService {
       values: params
     });
     
-    return result[0].count > 0;
+    return (result as any[])[0].count > 0;
   }
 }
 
