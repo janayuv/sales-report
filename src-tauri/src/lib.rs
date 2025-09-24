@@ -1,7 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Mutex;
-use tauri::State;
 
 // Company data model
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -28,21 +25,6 @@ pub struct UpdateCompany {
     pub state_code: Option<String>,
 }
 
-// In-memory storage for companies
-pub struct CompanyStorage {
-    companies: Mutex<HashMap<i64, Company>>,
-    next_id: Mutex<i64>,
-}
-
-impl CompanyStorage {
-    pub fn new() -> Self {
-        Self {
-            companies: Mutex::new(HashMap::new()),
-            next_id: Mutex::new(1),
-        }
-    }
-}
-
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -50,10 +32,13 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn create_company(
-    storage: State<CompanyStorage>,
-    company: CreateCompany,
-) -> Result<Company, String> {
+async fn initialize_database() -> Result<(), String> {
+    // This will be handled by the frontend using the SQL plugin
+    Ok(())
+}
+
+#[tauri::command]
+async fn create_company(company: CreateCompany) -> Result<Company, String> {
     // Validate input
     if company.company_name.trim().is_empty() {
         return Err("Company name is required".to_string());
@@ -71,64 +56,20 @@ fn create_company(
         return Err("State code is required".to_string());
     }
 
-    let mut companies = storage.companies.lock().unwrap();
-    let mut next_id = storage.next_id.lock().unwrap();
-
-    // Check for duplicate GST
-    for existing_company in companies.values() {
-        if existing_company.gst_no == company.gst_no.trim() {
-            return Err("GST number already in use".to_string());
-        }
-    }
-
-    let id = *next_id;
-    *next_id += 1;
-
-    let new_company = Company {
-        id: Some(id),
+    // Return the validated data - the actual database operation will be handled by the frontend
+    Ok(Company {
+        id: None,
         company_name: company.company_name.trim().to_string(),
         gst_no: company.gst_no.trim().to_string(),
         state_code: company.state_code.trim().to_string(),
         created_at: Some(chrono::Utc::now().to_rfc3339()),
         updated_at: Some(chrono::Utc::now().to_rfc3339()),
-    };
-
-    companies.insert(id, new_company.clone());
-    Ok(new_company)
+    })
 }
 
 #[tauri::command]
-fn get_companies(storage: State<CompanyStorage>) -> Result<Vec<Company>, String> {
-    let companies = storage.companies.lock().unwrap();
-    let mut company_list: Vec<Company> = companies.values().cloned().collect();
-    company_list.sort_by(|a, b| {
-        b.created_at.as_ref().unwrap_or(&String::new())
-            .cmp(a.created_at.as_ref().unwrap_or(&String::new()))
-    });
-    Ok(company_list)
-}
-
-#[tauri::command]
-fn get_company_by_id(
-    storage: State<CompanyStorage>,
-    id: i64,
-) -> Result<Company, String> {
-    let companies = storage.companies.lock().unwrap();
-    companies.get(&id).cloned().ok_or_else(|| "Company not found".to_string())
-}
-
-#[tauri::command]
-fn update_company(
-    storage: State<CompanyStorage>,
-    id: i64,
-    company: UpdateCompany,
-) -> Result<Company, String> {
-    let mut companies = storage.companies.lock().unwrap();
-    
-    let mut existing_company = companies.get(&id).cloned()
-        .ok_or_else(|| "Company not found".to_string())?;
-
-    // Validate and update fields
+async fn validate_company_update(company: UpdateCompany) -> Result<UpdateCompany, String> {
+    // Validate input
     if let Some(name) = &company.company_name {
         if name.trim().is_empty() {
             return Err("Company name cannot be empty".to_string());
@@ -136,7 +77,6 @@ fn update_company(
         if name.len() > 255 {
             return Err("Company name must be 255 characters or less".to_string());
         }
-        existing_company.company_name = name.trim().to_string();
     }
 
     if let Some(gst_no) = &company.gst_no {
@@ -146,55 +86,15 @@ fn update_company(
         if !is_valid_gst_format(gst_no) {
             return Err("GST number must be 15 characters and follow GST format".to_string());
         }
-        
-        // Check for duplicate GST (excluding current company)
-        for (existing_id, existing) in companies.iter() {
-            if *existing_id != id && existing.gst_no == gst_no.trim() {
-                return Err("GST number already in use".to_string());
-            }
-        }
-        
-        existing_company.gst_no = gst_no.trim().to_string();
     }
 
     if let Some(state_code) = &company.state_code {
         if state_code.trim().is_empty() {
             return Err("State code cannot be empty".to_string());
         }
-        existing_company.state_code = state_code.trim().to_string();
     }
 
-    existing_company.updated_at = Some(chrono::Utc::now().to_rfc3339());
-    companies.insert(id, existing_company.clone());
-    Ok(existing_company)
-}
-
-#[tauri::command]
-fn delete_company(storage: State<CompanyStorage>, id: i64) -> Result<(), String> {
-    let mut companies = storage.companies.lock().unwrap();
-    companies.remove(&id).ok_or_else(|| "Company not found".to_string())?;
-    Ok(())
-}
-
-#[tauri::command]
-fn search_companies(
-    storage: State<CompanyStorage>,
-    query: String,
-) -> Result<Vec<Company>, String> {
-    let companies = storage.companies.lock().unwrap();
-    let search_term = query.trim().to_lowercase();
-    
-    let filtered: Vec<Company> = companies
-        .values()
-        .filter(|company| {
-            company.company_name.to_lowercase().contains(&search_term) ||
-            company.gst_no.to_lowercase().contains(&search_term) ||
-            company.state_code.to_lowercase().contains(&search_term)
-        })
-        .cloned()
-        .collect();
-    
-    Ok(filtered)
+    Ok(company)
 }
 
 // Helper function to validate GST format
@@ -208,15 +108,12 @@ fn is_valid_gst_format(gst_no: &str) -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .manage(CompanyStorage::new())
+        .plugin(tauri_plugin_sql::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             greet,
+            initialize_database,
             create_company,
-            get_companies,
-            get_company_by_id,
-            update_company,
-            delete_company,
-            search_companies
+            validate_company_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

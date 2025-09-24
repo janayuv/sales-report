@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Search, Plus, Edit, Trash2, Building2 } from "lucide-react";
 import { Company, CreateCompany, UpdateCompany } from "@/types/company";
 import { CompanyForm } from "./CompanyForm";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { dbService } from "@/services/database";
 
 export default function Companies() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -43,7 +43,7 @@ export default function Companies() {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await invoke<Company[]>("get_companies");
+      const result = await dbService.getCompanies();
       setCompanies(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load companies");
@@ -55,7 +55,7 @@ export default function Companies() {
   const handleCreateCompany = async (companyData: CreateCompany) => {
     try {
       setError(null);
-      const newCompany = await invoke<Company>("create_company", { company: companyData });
+      const newCompany = await dbService.createCompany(companyData);
       setCompanies(prev => [newCompany, ...prev]);
       setShowForm(false);
     } catch (err) {
@@ -67,10 +67,7 @@ export default function Companies() {
   const handleUpdateCompany = async (id: number, companyData: UpdateCompany) => {
     try {
       setError(null);
-      const updatedCompany = await invoke<Company>("update_company", { 
-        id, 
-        company: companyData 
-      });
+      const updatedCompany = await dbService.updateCompany(id, companyData);
       setCompanies(prev => 
         prev.map(company => 
           company.id === id ? updatedCompany : company
@@ -86,7 +83,7 @@ export default function Companies() {
   const handleDeleteCompany = async (id: number) => {
     try {
       setError(null);
-      await invoke("delete_company", { id });
+      await dbService.deleteCompany(id);
       setCompanies(prev => prev.filter(company => company.id !== id));
       setDeleteCompany(null);
     } catch (err) {

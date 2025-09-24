@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, Save, Loader2 } from "lucide-react";
 import { Company, CreateCompany, UpdateCompany, CompanyFormData, CompanyFormErrors } from "@/types/company";
+import { dbService } from "@/services/database";
 
 interface CompanyFormProps {
   company?: Company | null;
@@ -82,7 +83,7 @@ export function CompanyForm({ company, onSubmit, onClose }: CompanyFormProps) {
     }
   }, [company]);
 
-  const validateForm = (): boolean => {
+  const validateForm = async (): Promise<boolean> => {
     const newErrors: CompanyFormErrors = {};
 
     // Company name validation
@@ -97,6 +98,18 @@ export function CompanyForm({ company, onSubmit, onClose }: CompanyFormProps) {
       newErrors.gst_no = "GST number is required";
     } else if (!isValidGSTFormat(formData.gst_no)) {
       newErrors.gst_no = "GST number must be 15 characters and follow GST format";
+    } else {
+      // Check for duplicate GST
+      try {
+        const excludeId = isEditing ? company?.id : undefined;
+        const gstExists = await dbService.checkGstExists(formData.gst_no, excludeId);
+        if (gstExists) {
+          newErrors.gst_no = "GST number already in use";
+        }
+      } catch (error) {
+        console.error("Error checking GST:", error);
+        newErrors.gst_no = "Error validating GST number";
+      }
     }
 
     // State code validation
@@ -116,7 +129,7 @@ export function CompanyForm({ company, onSubmit, onClose }: CompanyFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!(await validateForm())) {
       return;
     }
 
