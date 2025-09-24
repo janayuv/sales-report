@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Edit, Trash2, Building2 } from "lucide-react";
+import { Search, Plus, Edit, Building2 } from "lucide-react";
 import { Company, CreateCompany, UpdateCompany } from "@/types/company";
 import { CompanyForm } from "./CompanyForm";
-import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
 import { dbService } from "@/services/database";
 
 export default function Companies() {
@@ -16,7 +15,6 @@ export default function Companies() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
-  const [deleteCompany, setDeleteCompany] = useState<Company | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Load companies on component mount
@@ -80,24 +78,9 @@ export default function Companies() {
     }
   };
 
-  const handleDeleteCompany = async (id: number) => {
-    try {
-      setError(null);
-      await dbService.deleteCompany(id);
-      setCompanies(prev => prev.filter(company => company.id !== id));
-      setDeleteCompany(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete company");
-    }
-  };
-
   const handleEdit = (company: Company) => {
     setEditingCompany(company);
     setShowForm(true);
-  };
-
-  const handleDelete = (company: Company) => {
-    setDeleteCompany(company);
   };
 
   const handleCloseForm = () => {
@@ -219,15 +202,6 @@ export default function Companies() {
                       <Edit className="h-4 w-4" />
                       Edit
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(company)}
-                      className="gap-2 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -245,15 +219,6 @@ export default function Companies() {
             : handleCreateCompany
           }
           onClose={handleCloseForm}
-        />
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      {deleteCompany && (
-        <DeleteConfirmDialog
-          company={deleteCompany}
-          onConfirm={() => handleDeleteCompany(deleteCompany.id!)}
-          onCancel={() => setDeleteCompany(null)}
         />
       )}
     </div>

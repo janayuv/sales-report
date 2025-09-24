@@ -152,14 +152,70 @@ class DatabaseService {
     return updatedCompany;
   }
 
-  async deleteCompany(id: number): Promise<void> {
+  // Selected Company persistence methods
+  async setSelectedCompany(companyId: number): Promise<void> {
     await this.initialize();
     
-    const deleteSQL = 'DELETE FROM companies WHERE id = $1';
+    // Create or update selected company in a simple key-value table
+    const createTableSQL = `
+      CREATE TABLE IF NOT EXISTS app_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    
+    await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: createTableSQL,
+      values: []
+    });
+    
+    const upsertSQL = `
+      INSERT INTO app_settings (key, value) 
+      VALUES ('selected_company_id', $1)
+      ON CONFLICT(key) DO UPDATE SET 
+        value = $1,
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    
+    await invoke('plugin:sql|execute', {
+      db: this.dbPath,
+      query: upsertSQL,
+      values: [companyId.toString()]
+    });
+  }
+
+  async getSelectedCompany(): Promise<Company | null> {
+    await this.initialize();
+    
+    const selectSQL = `
+      SELECT value FROM app_settings 
+      WHERE key = 'selected_company_id'
+    `;
+    
+    const result = await invoke('plugin:sql|select', {
+      db: this.dbPath,
+      query: selectSQL,
+      values: []
+    });
+    
+    if (result.length === 0) {
+      return null;
+    }
+    
+    const companyId = parseInt(result[0].value);
+    return await this.getCompanyById(companyId);
+  }
+
+  async clearSelectedCompany(): Promise<void> {
+    await this.initialize();
+    
+    const deleteSQL = 'DELETE FROM app_settings WHERE key = ?';
     await invoke('plugin:sql|execute', {
       db: this.dbPath,
       query: deleteSQL,
-      values: [id]
+      values: ['selected_company_id']
     });
   }
 

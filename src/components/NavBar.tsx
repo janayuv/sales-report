@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ModeToggle } from "./ModeToggle";
+import { CompanySelector } from "./CompanySelector";
 import { Menu, Github, ExternalLink } from "lucide-react";
 
 const NavBar = () => {
@@ -12,6 +13,7 @@ const NavBar = () => {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Companies", href: "/companies" },
+    { name: "Import & Reports", href: "/import-report" },
     { name: "Demo", href: "/page1" },
     { name: "Documentation", href: "/docs", external: true },
   ];
@@ -60,6 +62,7 @@ const NavBar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex md:items-center md:space-x-4">
+            <CompanySelector />
             <Button variant="ghost" size="sm" asChild>
               <a
                 href="https://github.com/Vishal-770/tauri-react-template"
