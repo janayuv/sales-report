@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Page1 from "./components/Pages/Page1";
 import Home from "./components/Pages/Home";
+import Companies from "./components/Pages/Companies";
 import RootLayout from "./components/Layout/RootLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 export default function App() {
@@ -14,6 +15,10 @@ export default function App() {
         {
           path: "/",
           element: <Home />,
+        },
+        {
+          path: "/companies",
+          element: <Companies />,
         },
         {
           path: "/page1",

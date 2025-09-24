@@ -11,6 +11,7 @@ const NavBar = () => {
 
   const navigation = [
     { name: "Home", href: "/" },
+    { name: "Companies", href: "/companies" },
     { name: "Demo", href: "/page1" },
     { name: "Documentation", href: "/docs", external: true },
   ];
@@ -25,7 +26,7 @@ const NavBar = () => {
           <Link to="/" className="flex items-center space-x-2">
             <img src="/tauri.svg" alt="Tauri" className="h-8 w-8 dark:invert" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Tauri Template
+              Sales Report
             </span>
           </Link>
 
@@ -90,7 +91,7 @@ const NavBar = () => {
                       alt="Tauri"
                       className="h-6 w-6 dark:invert"
                     />
-                    <span className="text-lg font-bold">Tauri Template</span>
+                    <span className="text-lg font-bold">Sales Report</span>
                   </Link>
 
                   {navigation.map((item) =>
