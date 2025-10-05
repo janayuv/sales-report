@@ -15,6 +15,7 @@ const NavBar = () => {
     { name: 'Companies', href: '/companies' },
     { name: 'Customers', href: '/customers' },
     { name: 'Import & Reports', href: '/import-report' },
+    { name: 'View Reports', href: '/imported-reports' },
     { name: 'Demo', href: '/page1' },
     { name: 'Documentation', href: '/docs', external: true },
   ];

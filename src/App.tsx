@@ -5,6 +5,7 @@ import Home from './components/Pages/Home';
 import Companies from './components/Pages/Companies';
 import Customers from './components/Pages/Customers';
 import ImportReport from './components/Pages/ImportReport';
+import { ImportedReportsPage } from './components/ImportedReportDataTable';
 import RootLayout from './components/Layout/RootLayout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SelectedCompanyProvider } from './contexts/SelectedCompanyContext';
@@ -32,6 +33,10 @@ export default function App() {
         {
           path: '/import-report',
           element: <ImportReport />,
+        },
+        {
+          path: '/imported-reports',
+          element: <ImportedReportsPage />,
         },
         {
           path: '/page1',
