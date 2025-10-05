@@ -12,6 +12,7 @@ A modern, production-ready template for building cross-platform desktop applicat
 ## ✨ Features
 
 ### 🎨 Modern UI & UX
+
 - Beautiful, responsive design with **shadcn/ui** components
 - **Dark/Light/System** theme support with no flash
 - Mobile-first responsive design
@@ -19,6 +20,7 @@ A modern, production-ready template for building cross-platform desktop applicat
 - Modern hero section and feature showcase
 
 ### ⚡ Performance & Developer Experience
+
 - **Lightning fast** with Tauri's Rust backend
 - **Hot reload** development experience
 - **Type-safe** communication between frontend and backend
@@ -26,6 +28,7 @@ A modern, production-ready template for building cross-platform desktop applicat
 - **Cross-platform** (Windows, macOS, Linux)
 
 ### 🛠 Tech Stack
+
 - **Frontend**: React 19, TypeScript, Tailwind CSS
 - **Backend**: Tauri 2.0 (Rust)
 - **UI Components**: shadcn/ui
@@ -36,6 +39,7 @@ A modern, production-ready template for building cross-platform desktop applicat
 - **Styling**: Tailwind CSS v4
 
 ### 🔧 Developer Tools
+
 - ESLint & Prettier configuration
 - TypeScript strict mode
 - Path aliases (`@/` for `src/`)
@@ -58,17 +62,20 @@ Make sure you have the following installed:
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Vishal-770/tauri-react-template.git
    cd tauri-react-template
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run tauri dev
    ```
@@ -78,10 +85,90 @@ Make sure you have the following installed:
    npm run tauri build
    ```
 
+## 🏢 Companies Feature
+
+The Sales Report application includes a comprehensive Companies management system with **Selected Company** context for streamlined operations.
+
+### Features
+
+- **CRUD Operations**: Create, Read, Update companies (Delete intentionally omitted)
+- **Selected Company Context**: Global company selection with persistence
+- **GST Validation**: Validates GST number format (15 characters, proper structure)
+- **State Code Dropdown**: Pre-populated with Indian state codes
+- **Search & Filter**: Search companies by name, GST number, or state code
+- **Data Persistence**: SQLite database with automatic migrations
+- **Form Validation**: Client-side and server-side validation
+- **Responsive UI**: Mobile-friendly interface with modern design
+- **Import/Report Integration**: Uses selected company for data operations
+
+### Selected Company Behavior
+
+- **Global Selection**: Company selector in the header/top bar
+- **Persistent Storage**: Selection survives app restarts
+- **Visual Feedback**: Shows selected company name and state badge
+- **Import/Report Integration**: All data operations use the selected company
+- **Validation**: Prevents operations without a selected company
+
+### Database Schema
+
+The companies table includes:
+
+- `id` (Primary Key, Auto-increment)
+- `company_name` (Required, Max 255 characters)
+- `gst_no` (Required, Unique, 15 characters)
+- `state_code` (Required, 2-digit state code)
+- `created_at` (Auto-generated timestamp)
+- `updated_at` (Auto-updated timestamp)
+
+The app_settings table stores:
+
+- `key` (Primary Key, TEXT)
+- `value` (TEXT)
+- `updated_at` (Auto-updated timestamp)
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:ui
+
+# Run tests once
+npm run test:run
+```
+
+### Database Migrations
+
+The SQLite database is automatically created and migrated when you first run the application. The migration creates:
+
+- `companies` table with all required fields and constraints
+- `app_settings` table for storing application preferences (selected company)
+
+### Sample Data
+
+To add sample companies for testing:
+
+1. Navigate to the Companies page (`/companies`)
+2. Click "Add Company"
+3. Fill in the form with valid data:
+   - Company Name: "Test Company Pvt Ltd"
+   - GST Number: "07AABCU9603R1ZX"
+   - State Code: "07" (Delhi)
+
+### Using Selected Company
+
+1. **Select a Company**: Use the dropdown in the header to select a company
+2. **Import Data**: Navigate to Import & Reports page - operations will use the selected company
+3. **Generate Reports**: Reports will be generated for the selected company
+4. **Validation**: If no company is selected, you'll be prompted to select one
+5. **Persistence**: Your selection is saved and restored when you restart the app
+
 ## 📁 Project Structure
 
 ```
-tauri-react-template/
+sales-report/
 ├── public/                     # Static assets
 │   ├── tauri.svg              # App icons
 │   └── vite.svg
@@ -90,10 +177,25 @@ tauri-react-template/
 │   │   ├── ui/               # shadcn/ui components
 │   │   ├── Layout/           # Layout components
 │   │   ├── Pages/            # Page components
+│   │   │   ├── Companies.tsx # Companies management page
+│   │   │   ├── CompanyForm.tsx # Company form component
+│   │   │   ├── ImportReport.tsx # Import & Reports page
+│   │   │   └── __tests__/    # Component tests
+│   │   ├── CompanySelector.tsx # Company selection dropdown
 │   │   ├── NavBar.tsx        # Navigation component
 │   │   ├── Footer.tsx        # Footer component
 │   │   ├── ModeToggle.tsx    # Theme toggle
 │   │   └── theme-provider.tsx # Theme context
+│   ├── contexts/             # React contexts
+│   │   └── SelectedCompanyContext.tsx # Selected company state
+│   ├── services/             # API services
+│   │   └── database.ts       # Database operations
+│   ├── types/                # TypeScript type definitions
+│   │   ├── company.ts        # Company data types
+│   │   └── __tests__/        # Type tests
+│   ├── test/                 # Test setup and utilities
+│   │   ├── setup.ts          # Test configuration
+│   │   └── selectedCompany.test.tsx # Selected company tests
 │   ├── lib/                  # Utility functions
 │   │   └── utils.ts          # Common utilities
 │   ├── App.tsx               # Router setup
@@ -102,7 +204,9 @@ tauri-react-template/
 ├── src-tauri/                 # Tauri backend
 │   ├── src/                  # Rust source
 │   │   ├── main.rs           # Main entry point
-│   │   └── lib.rs            # Library functions
+│   │   └── lib.rs            # Library functions & API
+│   ├── capabilities/         # Tauri permissions
+│   │   └── default.json      # Default capabilities
 │   ├── Cargo.toml            # Rust dependencies
 │   ├── tauri.conf.json       # Tauri configuration
 │   └── build.rs              # Build script
@@ -110,6 +214,7 @@ tauri-react-template/
 ├── tailwind.config.js         # Tailwind configuration
 ├── tsconfig.json             # TypeScript config
 ├── vite.config.ts            # Vite configuration
+├── vitest.config.ts          # Vitest test configuration
 └── package.json              # Node.js dependencies
 ```
 
@@ -155,17 +260,21 @@ Available components: button, card, input, dropdown-menu, dialog, and [many more
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run tauri dev` | Start development server |
-| `npm run tauri build` | Build for production |
-| `npm run dev` | Start frontend dev server only |
-| `npm run build` | Build frontend only |
-| `npm run preview` | Preview production build |
+| Command               | Description                    |
+| --------------------- | ------------------------------ |
+| `npm run tauri dev`   | Start development server       |
+| `npm run tauri build` | Build for production           |
+| `npm run dev`         | Start frontend dev server only |
+| `npm run build`       | Build frontend only            |
+| `npm run preview`     | Preview production build       |
+| `npm test`            | Run tests in watch mode        |
+| `npm run test:ui`     | Run tests with UI              |
+| `npm run test:run`    | Run tests once                 |
 
 ### Adding Tauri Commands
 
 1. **Add Rust function in `src-tauri/src/lib.rs`:**
+
    ```rust
    #[tauri::command]
    fn my_command(input: String) -> String {
@@ -174,32 +283,37 @@ Available components: button, card, input, dropdown-menu, dialog, and [many more
    ```
 
 2. **Register command in `src-tauri/src/main.rs`:**
+
    ```rust
    .invoke_handler(tauri::generate_handler![greet, my_command])
    ```
 
 3. **Call from frontend:**
+
    ```typescript
    import { invoke } from '@tauri-apps/api/core';
-   
+
    const result = await invoke('my_command', { input: 'World' });
    ```
 
 ## 🌟 Features in Detail
 
 ### Dark/Light Theme System
+
 - Automatic system preference detection
 - Persistent theme selection
 - No flash of unstyled content (FOUC)
 - Smooth transitions between themes
 
 ### Responsive Design
+
 - Mobile-first approach
 - Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
 - Touch-friendly interface
 - Collapsible mobile navigation
 
 ### Type Safety
+
 - Full TypeScript support
 - Type-safe Tauri command invocation
 - Strict mode enabled
@@ -225,11 +339,13 @@ If you find a bug or have a feature request:
 1. **Fork the repository**
 
 2. **Clone your fork**
+
    ```bash
    git clone https://github.com/yourusername/tauri-react-template.git
    ```
 
 3. **Create a feature branch**
+
    ```bash
    git checkout -b feature/amazing-feature
    ```
@@ -239,6 +355,7 @@ If you find a bug or have a feature request:
 5. **Test thoroughly**
 
 6. **Commit with conventional commits**
+
    ```bash
    git commit -m "feat: add amazing feature"
    ```

@@ -4,13 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/tauri.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri + React + TypeScript Template</title>
+    <title>Sales Report</title>
     <script>
       // Prevent flash of unstyled content (FOUC) in dark mode
-      (function() {
+      (function () {
         try {
           const theme = localStorage.getItem('vite-ui-theme') || 'dark';
-          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+            .matches
+            ? 'dark'
+            : 'light';
           const resolvedTheme = theme === 'system' ? systemTheme : theme;
           document.documentElement.classList.add(resolvedTheme);
         } catch (e) {

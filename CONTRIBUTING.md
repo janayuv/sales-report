@@ -26,10 +26,12 @@ We pledge to make participation in our project a harassment-free experience for 
 ### Reporting Bugs
 
 Before submitting a bug report:
+
 - Check if the issue already exists in our [issue tracker](https://github.com/Vishal-770/tauri-react-template/issues)
 - Update to the latest version and see if the issue persists
 
 When submitting a bug report, include:
+
 - **Clear title** and description
 - **Steps to reproduce** the issue
 - **Expected behavior** vs actual behavior
@@ -39,10 +41,12 @@ When submitting a bug report, include:
 ### Suggesting Features
 
 Feature requests are welcome! Before submitting:
+
 - Check if the feature already exists or is planned
 - Consider if it fits the project's scope and goals
 
 Include in your feature request:
+
 - **Clear description** of the feature
 - **Use case** and motivation
 - **Mockups or examples** if applicable
@@ -67,12 +71,14 @@ Include in your feature request:
 ### Setup Steps
 
 1. **Clone your fork**
+
    ```bash
    git clone https://github.com/Vishal-770/tauri-react-template.git
    cd tauri-react-template
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -111,6 +117,7 @@ src-tauri/
 ### PR Title Format
 
 Use conventional commit format:
+
 ```
 feat: add new component
 fix: resolve theme switching bug
@@ -121,23 +128,28 @@ docs: update installation guide
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] I have tested these changes locally
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 
 ## Screenshots (if applicable)
+
 [Add screenshots here]
 
 ## Checklist
+
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -213,6 +225,7 @@ pub fn greet(name: &str) -> Result<String, String> {
 We use [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
 ### Format
+
 ```
 <type>[optional scope]: <description>
 
@@ -286,10 +299,10 @@ test('should toggle theme when clicked', () => {
       <ModeToggle />
     </ThemeProvider>
   );
-  
+
   const toggle = screen.getByRole('button');
   fireEvent.click(toggle);
-  
+
   // Assert theme change
 });
 ```
@@ -302,10 +315,10 @@ test('should toggle theme when clicked', () => {
 - Include examples in documentation
 - Document component props with TypeScript interfaces
 
-```typescript
+````typescript
 /**
  * A reusable card component with optional header and footer
- * 
+ *
  * @example
  * ```tsx
  * <Card>
@@ -322,11 +335,12 @@ interface CardProps {
   /** Card content */
   children: React.ReactNode;
 }
-```
+````
 
 ### README Updates
 
 When adding new features:
+
 - Update the features list
 - Add usage examples
 - Update the tech stack if needed
@@ -344,6 +358,7 @@ If you have questions about contributing:
 ## 🎉 Recognition
 
 Contributors will be:
+
 - Added to the contributors list
 - Mentioned in release notes for significant contributions
 - Given credit in documentation where appropriate

@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight,
   Code,
@@ -17,59 +17,59 @@ import {
   Download,
   Star,
   GitFork,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const features = [
     {
       icon: <Zap className="h-8 w-8" />,
-      title: "Lightning Fast",
+      title: 'Lightning Fast',
       description:
-        "Built with Rust backend for blazing fast performance and minimal resource usage.",
+        'Built with Rust backend for blazing fast performance and minimal resource usage.',
     },
     {
       icon: <Shield className="h-8 w-8" />,
-      title: "Secure by Default",
+      title: 'Secure by Default',
       description:
         "Tauri's security-first approach ensures your app is protected from common vulnerabilities.",
     },
     {
       icon: <Smartphone className="h-8 w-8" />,
-      title: "Cross Platform",
+      title: 'Cross Platform',
       description:
-        "Deploy to Windows, macOS, and Linux with a single codebase.",
+        'Deploy to Windows, macOS, and Linux with a single codebase.',
     },
     {
       icon: <Code className="h-8 w-8" />,
-      title: "Modern Stack",
+      title: 'Modern Stack',
       description:
-        "React 19, TypeScript, Tailwind CSS, and shadcn/ui for the best developer experience.",
+        'React 19, TypeScript, Tailwind CSS, and shadcn/ui for the best developer experience.',
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: "Web Technologies",
+      title: 'Web Technologies',
       description:
-        "Use familiar web technologies to build native desktop applications.",
+        'Use familiar web technologies to build native desktop applications.',
     },
     {
       icon: <Download className="h-8 w-8" />,
-      title: "Small Bundle Size",
+      title: 'Small Bundle Size',
       description:
         "Smaller app size compared to Electron, thanks to Tauri's Rust core.",
     },
   ];
 
   const techStack = [
-    "Tauri 2.0",
-    "React 19",
-    "TypeScript",
-    "Tailwind CSS",
-    "shadcn/ui",
-    "React Router",
-    "React Query",
-    "Vite",
-    "Lucide Icons",
+    'Tauri 2.0',
+    'React 19',
+    'TypeScript',
+    'Tailwind CSS',
+    'shadcn/ui',
+    'React Router',
+    'React Query',
+    'Vite',
+    'Lucide Icons',
   ];
 
   return (
