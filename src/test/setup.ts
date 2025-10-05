@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // Mock Tauri API
@@ -8,7 +8,7 @@ import { vi } from 'vitest';
     listen: vi.fn(),
     emit: vi.fn(),
   },
-}
+};
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -23,7 +23,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 
 // Mock localStorage
 const localStorageMock: Storage = {

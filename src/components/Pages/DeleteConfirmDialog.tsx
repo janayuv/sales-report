@@ -1,7 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, X } from "lucide-react";
-import { Company } from "@/types/company";
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { AlertTriangle, X } from 'lucide-react';
+import { Company } from '@/types/company';
 
 interface DeleteConfirmDialogProps {
   company: Company;
@@ -9,7 +15,11 @@ interface DeleteConfirmDialogProps {
   onCancel: () => void;
 }
 
-export function DeleteConfirmDialog({ company, onConfirm, onCancel }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({
+  company,
+  onConfirm,
+  onCancel,
+}: DeleteConfirmDialogProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-md">
@@ -22,13 +32,14 @@ export function DeleteConfirmDialog({ company, onConfirm, onCancel }: DeleteConf
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <CardDescription>
-            Are you sure you want to delete <strong>{company.company_name}</strong>?
-            This action cannot be undone.
+            Are you sure you want to delete{' '}
+            <strong>{company.company_name}</strong>? This action cannot be
+            undone.
           </CardDescription>
-          
+
           <div className="bg-muted/50 p-3 rounded-lg">
             <p className="text-sm text-muted-foreground">
               <strong>Company:</strong> {company.company_name}

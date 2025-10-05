@@ -1,47 +1,47 @@
-import { Link } from "react-router-dom";
-import { Github, Heart, ExternalLink } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { Github, Heart, ExternalLink } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const links = {
     project: [
-      { name: "Home", href: "/" },
-      { name: "Demo", href: "/page1" },
-      { name: "Documentation", href: "#", external: true },
-      { name: "Changelog", href: "#", external: true },
+      { name: 'Home', href: '/' },
+      { name: 'Demo', href: '/page1' },
+      { name: 'Documentation', href: '#', external: true },
+      { name: 'Changelog', href: '#', external: true },
     ],
     community: [
       {
-        name: "GitHub",
-        href: "https://github.com/Vishal-770/tauri-react-template",
+        name: 'GitHub',
+        href: 'https://github.com/Vishal-770/tauri-react-template',
         external: true,
       },
       {
-        name: "Issues",
-        href: "https://github.com/Vishal-770/tauri-react-template/issues",
+        name: 'Issues',
+        href: 'https://github.com/Vishal-770/tauri-react-template/issues',
         external: true,
       },
       {
-        name: "Discussions",
-        href: "https://github.com/Vishal-770/tauri-react-template/discussions",
+        name: 'Discussions',
+        href: 'https://github.com/Vishal-770/tauri-react-template/discussions',
         external: true,
       },
       {
-        name: "Contributing",
-        href: "https://github.com/Vishal-770/tauri-react-template/blob/main/CONTRIBUTING.md",
+        name: 'Contributing',
+        href: 'https://github.com/Vishal-770/tauri-react-template/blob/main/CONTRIBUTING.md',
         external: true,
       },
     ],
     resources: [
-      { name: "Tauri Docs", href: "https://tauri.app/", external: true },
-      { name: "React Docs", href: "https://react.dev/", external: true },
+      { name: 'Tauri Docs', href: 'https://tauri.app/', external: true },
+      { name: 'React Docs', href: 'https://react.dev/', external: true },
       {
-        name: "Tailwind CSS",
-        href: "https://tailwindcss.com/",
+        name: 'Tailwind CSS',
+        href: 'https://tailwindcss.com/',
         external: true,
       },
-      { name: "shadcn/ui", href: "https://ui.shadcn.com/", external: true },
+      { name: 'shadcn/ui', href: 'https://ui.shadcn.com/', external: true },
     ],
   };
 
@@ -93,7 +93,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-sm mb-4">Project</h3>
             <ul className="space-y-2">
-              {links.project.map((link) => (
+              {links.project.map(link => (
                 <li key={link.name}>
                   {link.external ? (
                     <a
@@ -122,7 +122,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-sm mb-4">Community</h3>
             <ul className="space-y-2">
-              {links.community.map((link) => (
+              {links.community.map(link => (
                 <li key={link.name}>
                   <a
                     href={link.href}
@@ -142,7 +142,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold text-sm mb-4">Resources</h3>
             <ul className="space-y-2">
-              {links.resources.map((link) => (
+              {links.resources.map(link => (
                 <li key={link.name}>
                   <a
                     href={link.href}

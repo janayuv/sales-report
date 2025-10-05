@@ -1,21 +1,22 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ModeToggle } from "./ModeToggle";
-import { CompanySelector } from "./CompanySelector";
-import { Menu, Github, ExternalLink } from "lucide-react";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ModeToggle } from './ModeToggle';
+import { CompanySelector } from './CompanySelector';
+import { Menu, Github, ExternalLink } from 'lucide-react';
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Companies", href: "/companies" },
-    { name: "Import & Reports", href: "/import-report" },
-    { name: "Demo", href: "/page1" },
-    { name: "Documentation", href: "/docs", external: true },
+    { name: 'Home', href: '/' },
+    { name: 'Companies', href: '/companies' },
+    { name: 'Customers', href: '/customers' },
+    { name: 'Import & Reports', href: '/import-report' },
+    { name: 'Demo', href: '/page1' },
+    { name: 'Documentation', href: '/docs', external: true },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -34,7 +35,7 @@ const NavBar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-6">
-            {navigation.map((item) =>
+            {navigation.map(item =>
               item.external ? (
                 <a
                   key={item.name}
@@ -50,8 +51,8 @@ const NavBar = () => {
                   to={item.href}
                   className={`text-sm font-medium transition-colors hover:text-foreground ${
                     isActive(item.href)
-                      ? "text-foreground"
-                      : "text-muted-foreground"
+                      ? 'text-foreground'
+                      : 'text-muted-foreground'
                   }`}
                 >
                   {item.name}
@@ -97,7 +98,7 @@ const NavBar = () => {
                     <span className="text-lg font-bold">Sales Report</span>
                   </Link>
 
-                  {navigation.map((item) =>
+                  {navigation.map(item =>
                     item.external ? (
                       <a
                         key={item.name}
@@ -114,8 +115,8 @@ const NavBar = () => {
                         to={item.href}
                         className={`py-2 text-sm font-medium transition-colors hover:text-foreground ${
                           isActive(item.href)
-                            ? "text-foreground font-semibold"
-                            : "text-muted-foreground"
+                            ? 'text-foreground font-semibold'
+                            : 'text-muted-foreground'
                         }`}
                         onClick={() => setIsOpen(false)}
                       >

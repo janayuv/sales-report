@@ -1,0 +1,13 @@
+---
+sourceLocationPrefix: D:\new project\sales-report
+baselineLinesOfCode: 3181
+unicodeNewlines: true
+columnKind: utf16
+primaryLanguage: javascript
+creationMetadata:
+  sha: 426a9ab7c83fd431cfdfe19ba434fc66efa30c8c
+  cliVersion: 2.23.0
+  creationTime: 2025-09-24T09:13:39.101501200Z
+overlayBaseDatabase: false
+overlayDatabase: false
+finalised: true

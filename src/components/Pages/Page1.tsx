@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import {
   Terminal,
   Cpu,
@@ -19,22 +19,22 @@ import {
   Monitor,
   Wifi,
   Database,
-} from "lucide-react";
-import { useTheme } from "../theme-provider";
+} from 'lucide-react';
+import { useTheme } from '../theme-provider';
 
 const Page1 = () => {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [greetMsg, setGreetMsg] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();
 
   const handleGreet = async () => {
     setIsLoading(true);
     try {
-      const result = await invoke("greet", { name });
+      const result = await invoke('greet', { name });
       setGreetMsg(result as string);
     } catch (error) {
-      setGreetMsg("Error: Could not invoke Tauri command");
+      setGreetMsg('Error: Could not invoke Tauri command');
       console.error(error);
     }
     setIsLoading(false);
@@ -42,28 +42,28 @@ const Page1 = () => {
 
   const systemInfo = [
     {
-      label: "Operating System",
-      value: "Windows 11",
+      label: 'Operating System',
+      value: 'Windows 11',
       icon: <Monitor className="h-4 w-4" />,
     },
-    { label: "Architecture", value: "x64", icon: <Cpu className="h-4 w-4" /> },
+    { label: 'Architecture', value: 'x64', icon: <Cpu className="h-4 w-4" /> },
     {
-      label: "Memory",
-      value: "16 GB",
+      label: 'Memory',
+      value: '16 GB',
       icon: <HardDrive className="h-4 w-4" />,
     },
     {
-      label: "Network",
-      value: "Connected",
+      label: 'Network',
+      value: 'Connected',
       icon: <Wifi className="h-4 w-4" />,
     },
   ];
 
   const features = [
     {
-      title: "Tauri Commands",
-      description: "Test backend communication",
-      badge: "Rust",
+      title: 'Tauri Commands',
+      description: 'Test backend communication',
+      badge: 'Rust',
       content: (
         <div className="space-y-4">
           <div className="space-y-2">
@@ -72,8 +72,8 @@ const Page1 = () => {
               id="name"
               placeholder="Type your name here..."
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleGreet()}
+              onChange={e => setName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleGreet()}
             />
           </div>
           <Button
@@ -81,7 +81,7 @@ const Page1 = () => {
             disabled={!name.trim() || isLoading}
             className="w-full"
           >
-            {isLoading ? "Greeting..." : "Greet"}
+            {isLoading ? 'Greeting...' : 'Greet'}
           </Button>
           {greetMsg && (
             <div className="p-3 bg-muted rounded-md">
@@ -92,9 +92,9 @@ const Page1 = () => {
       ),
     },
     {
-      title: "Theme System",
-      description: "Dynamic theme switching",
-      badge: "React",
+      title: 'Theme System',
+      description: 'Dynamic theme switching',
+      badge: 'React',
       content: (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -103,23 +103,23 @@ const Page1 = () => {
           </div>
           <div className="grid grid-cols-3 gap-2">
             <Button
-              variant={theme === "light" ? "default" : "outline"}
+              variant={theme === 'light' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setTheme("light")}
+              onClick={() => setTheme('light')}
             >
               Light
             </Button>
             <Button
-              variant={theme === "dark" ? "default" : "outline"}
+              variant={theme === 'dark' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setTheme("dark")}
+              onClick={() => setTheme('dark')}
             >
               Dark
             </Button>
             <Button
-              variant={theme === "system" ? "default" : "outline"}
+              variant={theme === 'system' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setTheme("system")}
+              onClick={() => setTheme('system')}
             >
               System
             </Button>
@@ -134,9 +134,9 @@ const Page1 = () => {
       ),
     },
     {
-      title: "System Information",
-      description: "Platform detection",
-      badge: "Tauri",
+      title: 'System Information',
+      description: 'Platform detection',
+      badge: 'Tauri',
       content: (
         <div className="space-y-3">
           {systemInfo.map((info, index) => (

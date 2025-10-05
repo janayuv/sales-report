@@ -55,9 +55,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <SelectedCompanyProvider>
-          {children}
-        </SelectedCompanyProvider>
+        <SelectedCompanyProvider>{children}</SelectedCompanyProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
@@ -70,7 +68,9 @@ describe('SelectedCompanyContext', () => {
 
   it('should load selected company on mount', async () => {
     const mockSelectedCompany = mockCompanies[0];
-    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(mockSelectedCompany);
+    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(
+      mockSelectedCompany
+    );
 
     render(
       <TestWrapper>
@@ -86,7 +86,9 @@ describe('SelectedCompanyContext', () => {
   });
 
   it('should handle loading state', () => {
-    vi.mocked(dbService.getSelectedCompany).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(dbService.getSelectedCompany).mockImplementation(
+      () => new Promise(() => {})
+    );
 
     render(
       <TestWrapper>
@@ -99,7 +101,9 @@ describe('SelectedCompanyContext', () => {
 
   it('should handle error state', async () => {
     const errorMessage = 'Failed to load selected company';
-    vi.mocked(dbService.getSelectedCompany).mockRejectedValue(new Error(errorMessage));
+    vi.mocked(dbService.getSelectedCompany).mockRejectedValue(
+      new Error(errorMessage)
+    );
 
     render(
       <TestWrapper>
@@ -136,7 +140,9 @@ describe('CompanySelector', () => {
 
   it('should display selected company name', async () => {
     const mockSelectedCompany = mockCompanies[0];
-    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(mockSelectedCompany);
+    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(
+      mockSelectedCompany
+    );
 
     render(
       <TestWrapper>
@@ -183,7 +189,9 @@ describe('CompanySelector', () => {
 
   it('should handle clear selection', async () => {
     const mockSelectedCompany = mockCompanies[0];
-    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(mockSelectedCompany);
+    vi.mocked(dbService.getSelectedCompany).mockResolvedValue(
+      mockSelectedCompany
+    );
 
     render(
       <TestWrapper>

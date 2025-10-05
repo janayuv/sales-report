@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator 
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Building2, Plus, Check } from 'lucide-react';
@@ -19,7 +19,8 @@ interface CompanySelectorProps {
 }
 
 export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
-  const { selectedCompany, setSelectedCompany, isLoading } = useSelectedCompany();
+  const { selectedCompany, setSelectedCompany, isLoading } =
+    useSelectedCompany();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -30,10 +31,29 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
 
   const loadCompanies = async () => {
     try {
+      // First try a health check
+      const isHealthy = await dbService.healthCheck();
+      if (!isHealthy) {
+        console.log('Database health check failed, attempting to unlock...');
+        await dbService.forceUnlock();
+      }
+      
       const result = await dbService.getCompanies();
       setCompanies(result);
     } catch (err) {
       console.error('Failed to load companies:', err);
+      
+      // If it's a database lock error, try to unlock and retry once
+      if (err instanceof Error && err.message.includes('database is locked')) {
+        try {
+          console.log('Retrying after database unlock...');
+          await dbService.forceUnlock();
+          const result = await dbService.getCompanies();
+          setCompanies(result);
+        } catch (retryErr) {
+          console.error('Failed to load companies after retry:', retryErr);
+        }
+      }
     }
   };
 
@@ -76,7 +96,9 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
           <Button variant="outline" className="gap-2 h-8">
             <Building2 className="h-4 w-4" />
             {selectedCompany ? (
-              <span className="max-w-32 truncate">{selectedCompany.company_name}</span>
+              <span className="max-w-32 truncate">
+                {selectedCompany.company_name}
+              </span>
             ) : (
               <span>Select Company</span>
             )}
@@ -88,12 +110,16 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
             <DropdownMenuItem disabled>
               <div className="text-center py-2">
                 <Building2 className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">No companies found</p>
-                <p className="text-xs text-muted-foreground">Add your first company to get started</p>
+                <p className="text-sm text-muted-foreground">
+                  No companies found
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Add your first company to get started
+                </p>
               </div>
             </DropdownMenuItem>
           ) : (
-            companies.map((company) => (
+            companies.map(company => (
               <DropdownMenuItem
                 key={company.id}
                 onClick={() => handleSelectCompany(company)}
@@ -102,7 +128,8 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{company.company_name}</span>
                   <span className="text-xs text-muted-foreground">
-                    GST: {formatGstSnippet(company.gst_no)} • {company.state_code}
+                    GST: {formatGstSnippet(company.gst_no)} •{' '}
+                    {company.state_code}
                   </span>
                 </div>
                 {selectedCompany?.id === company.id && (
@@ -111,21 +138,23 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
               </DropdownMenuItem>
             ))
           )}
-          
+
           {companies.length > 0 && <DropdownMenuSeparator />}
-          
-          <DropdownMenuItem onClick={() => {
-            setIsOpen(false);
-            if (onAddCompany) {
-              onAddCompany();
-            } else {
-              navigate('/companies');
-            }
-          }}>
+
+          <DropdownMenuItem
+            onClick={() => {
+              setIsOpen(false);
+              if (onAddCompany) {
+                onAddCompany();
+              } else {
+                navigate('/companies');
+              }
+            }}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Company...
           </DropdownMenuItem>
-          
+
           {selectedCompany && (
             <>
               <DropdownMenuSeparator />
@@ -136,7 +165,7 @@ export function CompanySelector({ onAddCompany }: CompanySelectorProps) {
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       {selectedCompany && (
         <Badge variant="secondary" className="text-xs">
           {selectedCompany.state_code}
